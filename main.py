@@ -11,12 +11,30 @@ import numpy as np
 import cv2
 from datetime import datetime
 
+# Es la camara
 camara = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+
+# Umbrales utilizados para detectar la varaicion de puntos calve
 umbralSuperior = 1.10
 umbralInferior = 0.90
+
+# Permite reinicar los umbrales cada cierto tiempo
 now = 0
 tiempoActual = 0
+
+# Cantidad de puntos clave
 nEsquinas = 0
+
+# La ruta mas el nombre, que es la fecha
+fecha =  datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+ruta = f"K:/Grabacion/{fecha}.avi"
+
+# Cantidad de fotogramas empleados
+fps = 30.0
+
+# La salida de la camara en forma de video, blanco y negro
+fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+salida = cv2.VideoWriter(ruta, fourcc, fps, (int(camara.get(3)), int(camara.get(4))), False)
 
 while True:
     _, imagen = camara.read()
@@ -58,8 +76,14 @@ while True:
 
     # Para saber si se ha producido movimiento lo que se hace es comparar si la cantidad de puntos entra dentro de los umbrales.
     if nEsquinas > (puntosRelevantes * umbralSuperior) or nEsquinas < (puntosRelevantes * umbralInferior):
-        print("MOVIMIENTO")
+        print("Movimiento detectado")
+        salida.write(imagenGris)
 
+    #Se muestra en una ventana las imagenes
     cv2.imshow("Shi-Tomasi - color", imagen);
+    cv2.imshow("Shi-Tomasi - gris", imagenGris)
+
+    #Pulsar 'q' para salir
     if cv2.waitKey(2) & 0xFF == ord('q'):
         break
+
